@@ -12,6 +12,7 @@ Designed to run on the same Mac as ProPresenter and display active call numbers 
 * Send child call numbers (e.g. **R22**, **K5**) to ProPresenter
 * Tablets update instantly and show all active calls
 * Calls can be removed with a single tap
+* No need for the ProPresenter operator to click anything
 * Optional sound feedback for success/error
 
 ### 👶 Dynamic Group Management
@@ -19,8 +20,8 @@ Designed to run on the same Mac as ProPresenter and display active call numbers 
 * Create, edit, and delete groups in the Admin Panel
 * Each group has:
 
-  * **Name** (e.g. “Rasselbande”)
-  * **Prefix** (e.g. “R”)
+  * **Name** (e.g. “Little Sharks”)
+  * **Prefix** (e.g. “s”)
   * **Button Style** (1–10 predefined gradient styles)
 * Index page automatically updates to show all active groups
 * No hard-coded groups in the client
