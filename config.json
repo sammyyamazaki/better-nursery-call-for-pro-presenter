@@ -1,16 +1,16 @@
 {
-  "PP_HOST": "192.168.178.207",
-  "PP_PORT": 49123,
+  "PP_HOST": "IP OF PROPRESENTER COMPUTER",
+  "PP_PORT": PORT PP USES,
   "MESSAGE_UUID": "2FBC701B-2A0D-4FE8-8FED-2EF6EB5F2149",
   "GROUPS": [
     {
-      "name": "Rasselbande",
-      "prefix": "R",
+      "name": "Kids Group 1",
+      "prefix": "A",
       "style": 1
     },
     {
-      "name": "K\u00f6nigskinder",
-      "prefix": "K",
+      "name": "Kids Group 2",
+      "prefix": "B",
       "style": 2
     }
   ]
