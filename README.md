@@ -3,7 +3,7 @@ Better Nursery Call for ProPresenter
 Features:
 - Instant Number Display
 - No need for Propresenter Operator to click anything
-- Number only disappears when Kids Ministry deletes it
+- Number only disappears when Kids Ministry deletes it (when Kid is being picked up)
 - Multiple Numbers can be shown at once
 - Different Groups have different Prefixes
 - Auto-Port Discovery: In case PP changes it's port the software will find the new port automatically
