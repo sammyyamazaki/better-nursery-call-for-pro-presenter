@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elternruf</title>
+
+<style>
+
+    html {
+      margin: 0;
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      height: 100%;
+      font-family: "SF Pro Display", Arial, sans-serif;
+
+      background:
+        url("images/background.png") no-repeat bottom right / 350px auto,
+        linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+      color: #222;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      background-attachment: fixed;
+    }
+
+    .main {
+        max-width: 1200px;
+        margin: auto;
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .left, .right {
+        background: #fff;
+        border-radius: 25px;
+        padding: 25px;
+        box-shadow: 0px 12px 35px rgba(0,0,0,0.18);
+    }
+
+    .left {
+        flex: 2;
+        min-width: 350px;
+    }
+    .right {
+        flex: 1;
+        min-width: 280px;
+    }
+
+    h1 {
+        text-align: center;
+        margin-top: 0;
+    }
+
+    #connectionStatus {
+        text-align: center;
+    }
+
+    .status-ok {
+        color: #0a0;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+    .status-fail {
+        color: red;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+
+    .group-buttons {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    .group-btn {
+        border: none;
+        padding: 12px 20px;
+        border-radius: 14px;
+        background: #eee;
+        font-size: 20px;
+        cursor: pointer;
+        transition: 0.15s;
+        font-weight: bold;
+    }
+    .group-btn.active {
+        color: white;
+    }
+
+    #numberInput {
+        width: 100%;
+        font-size: 28px;
+        padding: 15px;
+        border-radius: 12px;
+        border: 3px solid #b9b9ff;
+        margin-bottom: 20px;
+        box-sizing: border-box;
+        text-align: center;
+    }
+
+    #callBtn {
+        width: 100%;
+        font-size: 32px;
+        padding: 18px;
+        border-radius: 18px;
+        border: none;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.1s;
+    }
+
+    #callBtn:active {
+        transform: scale(0.97);
+    }
+
+    .active-call {
+        padding: 25px;
+        margin-bottom: 20px;
+        border-radius: 18px;
+        color: white;
+        font-size: 34px;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .style-1 { background: linear-gradient(135deg, #42e695, #3bb2b8); }
+    .style-2 { background: linear-gradient(135deg, #f7971e, #ffd200); }
+    .style-3 { background: linear-gradient(135deg, #ff6b6b, #d94a4a); }
+    .style-4 { background: linear-gradient(135deg, #7a6ff0, #5a4ed0); }
+    .style-5 { background: linear-gradient(135deg, #4db7ff, #2f8ad6); }
+    .style-6 { background: linear-gradient(135deg, #ff7ec2, #e95aa4); }
+    .style-7 { background: linear-gradient(135deg, #9bdc28, #7db81e); }
+    .style-8 { background: linear-gradient(135deg, #ffce39, #d3a824); }
+    .style-9 { background: linear-gradient(135deg, #45d9c2, #28b39b); }
+    .style-10 { background: linear-gradient(135deg, #c87bff, #a25bd9); }
+
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+</style>
+</head>
+<body>
+
+<div class="main">
+    <div class="left">
+        <h1>ELTERN RUFEN</h1>
+        <div id="connectionStatus"></div>
+
+        <div class="group-buttons" id="groupButtons"></div>
+
+        <input id="numberInput" type="number" placeholder="Nummer eingeben..." />
+
+        <button id="callBtn">📣 Rufen</button>
+    </div>
+
+    <div class="right">
+        <h2>Aktive Nummern</h2>
+        <div id="activeList"></div>
+    </div>
+</div>
+
+<audio id="sound-success" src="sounds/success.mp3"></audio>
+<audio id="sound-error" src="sounds/error.mp3"></audio>
+
+<script>
+let groups = [];
+let selectedGroup = null;
+let connectionOK = false;
+
+/* ------------------------------------------
+   URL-PARAMETER auslesen: ?group=R
+------------------------------------------- */
+function getURLGroupParam() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get("group");   // z.B. "R"
+}
+
+/* ---------------------------
+   Gruppen laden
+---------------------------- */
+async function loadGroups() {
+    const r = await fetch("/groups");
+    const data = await r.json();
+    groups = data.groups || [];
+
+    renderGroupButtons();
+}
+
+/* ---------------------------
+   State laden
+---------------------------- */
+async function loadState() {
+    const r = await fetch("/state");
+    const data = await r.json();
+
+    connectionOK = data.connection === "ok";
+    document.getElementById("connectionStatus").innerHTML =
+        connectionOK
+            ? '<div class="status-ok">🟢 ProPresenter verbunden</div>'
+            : '<div class="status-fail">🔴 Keine Verbindung</div>';
+
+    renderActiveList(data.active);
+    updateInputs();
+}
+
+/* ---------------------------
+   Gruppen Buttons anzeigen
+---------------------------- */
+function renderGroupButtons() {
+    const box = document.getElementById("groupButtons");
+    box.innerHTML = "";
+
+    const urlPrefix = getURLGroupParam();
+
+    groups.forEach((g, i) => {
+        const b = document.createElement("button");
+        b.className = "group-btn";
+        b.textContent = g.name;
+
+        b.onclick = () => {
+            selectedGroup = g;
+            updateActiveGroup();
+        };
+
+        box.appendChild(b);
+
+        // URL-Prefix zuerst
+        if (urlPrefix && g.prefix === urlPrefix) {
+            selectedGroup = g;
+        }
+    });
+
+    // falls keine URL-Auswahl → erste Gruppe nehmen
+    if (!selectedGroup && groups.length > 0) {
+        selectedGroup = groups[0];
+    }
+
+    updateActiveGroup();
+}
+
+function updateActiveGroup() {
+    const buttons = document.querySelectorAll(".group-btn");
+
+    buttons.forEach((btn, i) => {
+        btn.className = "group-btn";
+        if (groups[i] === selectedGroup) {
+            btn.classList.add("active");
+            btn.classList.add("style-" + selectedGroup.style);
+        }
+    });
+
+    const callBtn = document.getElementById("callBtn");
+    callBtn.className = "";
+    if (selectedGroup) {
+        callBtn.classList.add("style-" + selectedGroup.style);
+    }
+}
+
+/* ---------------------------
+   Aktive Calls
+---------------------------- */
+function renderActiveList(list) {
+    const box = document.getElementById("activeList");
+    box.innerHTML = "";
+
+    list.forEach(item => {
+        const prefix = item.charAt(0);
+        const group = groups.find(g => g.prefix === prefix);
+
+        const div = document.createElement("div");
+        const styleId = group ? group.style : 1;
+        div.className = "active-call style-" + styleId;
+        div.textContent = item;
+
+        div.onclick = async () => {
+            const r = await fetch("/remove?num=" + encodeURIComponent(item), { method: "POST" });
+            const data = await r.json();
+            renderActiveList(data.active);
+        };
+
+        box.appendChild(div);
+    });
+}
+
+/* ---------------------------
+   Nummer rufen
+---------------------------- */
+document.getElementById("callBtn").onclick = async () => {
+    if (!connectionOK) {
+        document.getElementById("sound-error").play();
+        return;
+    }
+
+    const input = document.getElementById("numberInput");
+    const val = input.value.trim();
+    if (!val || !selectedGroup) return;
+
+    const finalCode = selectedGroup.prefix + val;
+
+    const r = await fetch("/add?num=" + encodeURIComponent(finalCode), { method: "POST" });
+    const data = await r.json();
+
+    document.getElementById("sound-success").play();
+    renderActiveList(data.active);
+
+    input.value = "";
+};
+
+function updateInputs() {
+    const disabled = !connectionOK;
+    document.getElementById("numberInput").disabled = disabled;
+    document.getElementById("callBtn").disabled = disabled;
+}
+
+/* Init */
+loadGroups();
+loadState();
+setInterval(loadState, 1500);
+</script>
+
+</body>
+</html>

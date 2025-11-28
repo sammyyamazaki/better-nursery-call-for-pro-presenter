@@ -1,0 +1,17 @@
+{
+  "PP_HOST": "192.168.178.207",
+  "PP_PORT": 49123,
+  "MESSAGE_UUID": "2FBC701B-2A0D-4FE8-8FED-2EF6EB5F2149",
+  "GROUPS": [
+    {
+      "name": "Rasselbande",
+      "prefix": "R",
+      "style": 1
+    },
+    {
+      "name": "K\u00f6nigskinder",
+      "prefix": "K",
+      "style": 2
+    }
+  ]
+}

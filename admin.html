@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Elternrufe – Admin</title>
+
+<style>
+html,body{
+  margin:0;height:100%;
+  font-family:"SF Pro Display",Arial,sans-serif;
+  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+  color:#222;display:flex;justify-content:center;align-items:flex-start;
+  padding:20px;
+}
+.wrapper{
+  background:#fff;border-radius:20px;padding:30px;width:90%;max-width:900px;
+  box-shadow:0 10px 25px rgba(0,0,0,.2);
+}
+h1{text-align:center;margin-bottom:20px;}
+nav{
+  display:flex;justify-content:center;gap:10px;margin-bottom:20px;
+}
+.tab-btn{
+  flex:1;padding:10px;border:none;border-radius:10px;font-size:1rem;
+  cursor:pointer;background:#ececec;border:2px solid #bbb;transition:.25s;
+}
+.tab-btn.active{
+  border-color:#42e695;
+  background:linear-gradient(135deg,#42e695 0%,#3bb2b8 100%);
+  color:#fff;font-weight:bold;
+}
+.container{display:none;}
+.container.active{display:block;}
+
+button.main{
+  width:100%;margin-top:15px;padding:14px;font-size:1.2rem;border:none;
+  border-radius:12px;color:#fff;
+  background:linear-gradient(135deg,#42e695 0%,#3bb2b8 100%);
+  cursor:pointer;transition:.15s;
+}
+button.main:hover{transform:scale(1.03);}
+
+.status{
+  margin-top:15px;font-weight:600;border-radius:8px;padding:10px;
+}
+.success{background:#d4edda;color:#155724}
+.error{background:#f8d7da;color:#721c24}
+.info{background:#d1ecf1;color:#0c5460}
+
+.active-list{
+  display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:20px;
+}
+.active-item{
+  display:flex;justify-content:center;align-items:center;width:120px;height:120px;
+  font-size:2rem;font-weight:bold;color:#fff;border-radius:12px;
+  cursor:pointer;box-shadow:0 5px 10px rgba(0,0,0,.2);transition:.15s;
+}
+.active-item:hover{transform:scale(1.05)}
+.group-R{background:linear-gradient(135deg,#42e695 0%,#3bb2b8 100%)}
+.group-K{background:linear-gradient(135deg,#f7971e 0%,#ffd200 100%)}
+
+form label{display:block;margin-top:10px;font-weight:bold;text-align:left;}
+form input,form select{
+  width:100%;padding:10px;font-size:1rem;border-radius:8px;
+  border:2px solid #b0b5ff;outline:none;margin-top:5px;
+}
+footer{text-align:center;margin-top:20px;font-size:.8rem;color:rgba(0,0,0,.6)}
+
+/* ==== Gruppen-Tab: clean, weiß, ohne Farbsalat ==== */
+.group-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:10px 12px;
+  margin-top:10px;
+  border-radius:8px;
+  border:1px solid #ccc;
+  background:#fff;
+}
+.group-label{
+  flex:1;
+  font-size:1rem;
+  font-weight:600;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.group-actions{
+  display:flex;
+  gap:8px;
+}
+.group-actions button{
+  padding:6px 10px;
+  border-radius:6px;
+  border:1px solid #777;
+  background:#fff;
+  cursor:pointer;
+}
+.group-actions button:hover{
+  background:#f0f0f0;
+}
+
+/* Farbe für Gruppen-Badge (optional, aber dezent) */
+.group-badge{
+  display:inline-block;
+  padding:4px 8px;
+  border-radius:999px;
+  border:1px solid #ccc;
+  margin-right:8px;
+  background:#f7f7f7;
+}
+</style>
+</head>
+
+<body>
+<div class="wrapper">
+  <h1>📋 Elternrufe – Admin</h1>
+  <nav>
+    <button id="tabLive" class="tab-btn active" onclick="showTab('live')">📡 Live</button>
+    <button id="tabSettings" class="tab-btn" onclick="showTab('settings')">⚙️ Einstellungen</button>
+    <button id="tabGroups" class="tab-btn" onclick="showTab('groups')">👥 Gruppen</button>
+  </nav>
+
+  <!-- LIVE-TAB -->
+  <div id="live" class="container active">
+    <h2>Aktive Calls</h2>
+    <div class="active-list" id="activeNumbers"></div>
+    <button class="main" style="background:#f44" onclick="clearAll()">🧹 Alle löschen</button>
+    <div id="liveStatus" class="status info"></div>
+  </div>
+
+  <!-- SETTINGS-TAB -->
+  <div id="settings" class="container">
+    <h2>ProPresenter Verbindung</h2>
+    <form onsubmit="saveConfig(event)">
+      <label for="host">Host:</label>
+      <input id="host" type="text" placeholder="z. B. 192.168.1.10" />
+
+      <label for="port">Port:</label>
+      <input id="port" type="number" placeholder="z. B. 20562" />
+
+      <label for="uuid">Message-Vorlage:</label>
+      <select id="uuid"></select>
+
+      <button class="main" type="submit">💾 Speichern</button>
+      <button class="main" type="button" style="background:#ffa500" onclick="testConnection()">🔌 Verbindung testen</button>
+      <div id="configMsg" class="status info"></div>
+    </form>
+  </div>
+
+  <!-- GROUPS-TAB -->
+  <div id="groups" class="container">
+    <h2>Gruppen verwalten</h2>
+
+    <form id="groupForm" onsubmit="handleGroupSubmit(event)">
+      <label>Gruppenname</label>
+      <input id="g_name" required />
+
+      <label>Kürzel</label>
+      <input id="g_prefix" maxlength="3" required />
+
+      <label>Style</label>
+      <select id="g_style">
+        <option value="1">Style 1</option>
+        <option value="2">Style 2</option>
+        <option value="3">Style 3</option>
+        <option value="4">Style 4</option>
+        <option value="5">Style 5</option>
+        <option value="6">Style 6</option>
+        <option value="7">Style 7</option>
+        <option value="8">Style 8</option>
+        <option value="9">Style 9</option>
+        <option value="10">Style 10</option>
+      </select>
+
+      <button id="groupSubmit" class="main" type="submit">Hinzufügen</button>
+    </form>
+
+    <div id="groupStatus" class="status info" style="display:none;"></div>
+
+    <h3 style="margin-top:20px;">Bestehende Gruppen</h3>
+    <div id="groupList"></div>
+  </div>
+
+  <footer>© <span id="year"></span> EFG Essen Altendorf</footer>
+</div>
+
+<script>
+const SERVER_URL = window.location.origin;
+document.getElementById("year").textContent = new Date().getFullYear();
+let pollInterval=null;
+let CONFIG=null;
+let editIndex=null; // Index der zu bearbeitenden Gruppe
+
+function showTab(id){
+  document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+  document.querySelectorAll(".container").forEach(c=>c.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  document.getElementById("tab"+id.charAt(0).toUpperCase()+id.slice(1)).classList.add("active");
+}
+
+function statusMsg(el,msg,type="info"){
+  const box=document.getElementById(el);
+  box.style.display="block";
+  box.textContent=msg;
+  box.className=`status ${type}`;
+}
+
+// --- LIVE ---
+async function updateList(){
+  try{
+    const res=await fetch(`${SERVER_URL}/state`);
+    if(!res.ok) throw new Error(res.status);
+    const data=await res.json();
+    renderList(data.active||[]);
+    statusMsg("liveStatus","🟢 ProPresenter verbunden","success");
+  }catch(e){
+    statusMsg("liveStatus","❌ Keine Verbindung","error");
+  }
+}
+
+function renderList(list){
+  const c=document.getElementById("activeNumbers");
+  c.innerHTML="";
+  if(!list.length){c.innerHTML="<p>Keine aktiven Nummern</p>";return;}
+  list.forEach(n=>{
+    // Simple: K → group-K, sonst group-R (wie bisher)
+    const g=n.startsWith("K")?"K":"R";
+    const d=document.createElement("div");
+    d.className=`active-item group-${g}`;
+    d.textContent=n;
+    d.onclick=()=>removeNumber(n);
+    c.appendChild(d);
+  });
+}
+
+async function removeNumber(num){
+  try{
+    const res=await fetch(`${SERVER_URL}/remove?num=${encodeURIComponent(num)}`,{method:"POST"});
+    if(res.ok)updateList();
+  }catch{}
+}
+
+async function clearAll(){
+  if(!confirm("Wirklich alle löschen?")) return;
+  await fetch(`${SERVER_URL}/clear`, { method:"POST" });
+  updateList();
+}
+
+function startPolling(){
+  updateList();
+  pollInterval=setInterval(updateList,3000);
+}
+
+// --- SETTINGS / CONFIG ---
+async function loadConfig(){
+  try{
+    const res=await fetch(`${SERVER_URL}/config`);
+    const cfg=await res.json();
+    CONFIG=cfg;
+    if(!CONFIG.GROUPS) CONFIG.GROUPS = [];
+
+    document.getElementById("host").value=cfg.PP_HOST||"localhost";
+    document.getElementById("port").value=cfg.PP_PORT||20562;
+    await loadMessages(cfg.PP_HOST||"localhost",cfg.PP_PORT||20562,cfg.MESSAGE_UUID);
+
+    // Gruppenliste initial zeichnen
+    renderGroups();
+  }catch(e){
+    statusMsg("configMsg","⚠️ Konnte Config nicht laden","error");
+  }
+}
+
+async function loadMessages(host,port,activeUUID){
+  try{
+    const res=await fetch(`http://${host}:${port}/v1/messages`);
+    if(!res.ok)throw new Error();
+    const msgs=await res.json();
+    const select=document.getElementById("uuid");
+    select.innerHTML="";
+    msgs.forEach(m=>{
+      const opt=document.createElement("option");
+      opt.value=m.id.uuid;
+      opt.textContent=`${m.id.name}`;
+      if(m.id.uuid===activeUUID) opt.selected=true;
+      select.appendChild(opt);
+    });
+    statusMsg("configMsg","✅ Vorlagen geladen","success");
+  }catch(e){
+    statusMsg("configMsg","⚠️ Keine Verbindung zu PP","error");
+  }
+}
+
+async function saveConfig(e){
+  e.preventDefault();
+  CONFIG.PP_HOST=document.getElementById("host").value;
+  CONFIG.PP_PORT=parseInt(document.getElementById("port").value);
+  CONFIG.MESSAGE_UUID=document.getElementById("uuid").value;
+
+  try{
+    const res=await fetch(`${SERVER_URL}/save_config`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(CONFIG)
+    });
+    if(res.ok)statusMsg("configMsg","✅ Gespeichert","success");
+  }catch(e){
+    statusMsg("configMsg","❌ Fehler beim Speichern","error");
+  }
+}
+
+async function testConnection(){
+  const host=document.getElementById("host").value||"localhost";
+  const port=document.getElementById("port").value||20562;
+  try{
+    const res=await fetch(`http://${host}:${port}/v1/messages`);
+    if(res.ok){
+      statusMsg("configMsg","🟢 Verbindung erfolgreich","success");
+      await loadMessages(host,port,document.getElementById("uuid").value);
+    }else throw new Error();
+  }catch(e){statusMsg("configMsg","🔴 Verbindung fehlgeschlagen","error");}
+}
+
+
+// --- GROUPS ---
+function renderGroups(){
+  const list=document.getElementById("groupList");
+  list.innerHTML="";
+
+  CONFIG.GROUPS.forEach((g,idx)=>{
+    const row=document.createElement("div");
+    row.className="group-row";
+    row.innerHTML=`
+      <div class="group-label">
+        <span class="group-badge">${g.prefix}</span>
+        ${g.name} (Style ${g.style})
+      </div>
+      <div class="group-actions">
+        <button type="button" onclick="editGroup(${idx})">Bearbeiten</button>
+        <button type="button" onclick="deleteGroup(${idx})">Löschen</button>
+      </div>
+    `;
+    list.appendChild(row);
+  });
+}
+
+function handleGroupSubmit(e){
+  e.preventDefault();
+  const name=document.getElementById("g_name").value.trim();
+  const prefix=document.getElementById("g_prefix").value.trim().toUpperCase();
+  const style=parseInt(document.getElementById("g_style").value);
+
+  if(!name || !prefix){
+    statusMsg("groupStatus","Bitte Name und Kürzel ausfüllen","error");
+    return false;
+  }
+
+  if(editIndex===null){
+    // NEUE GRUPPE
+    CONFIG.GROUPS.push({name,prefix,style});
+  }else{
+    // EXISTIERENDE GRUPPE AKTUALISIEREN
+    CONFIG.GROUPS[editIndex] = {name,prefix,style};
+  }
+
+  saveGroups();
+  return false;
+}
+
+function editGroup(idx){
+  const g=CONFIG.GROUPS[idx];
+  editIndex=idx;
+  document.getElementById("g_name").value=g.name;
+  document.getElementById("g_prefix").value=g.prefix;
+  document.getElementById("g_style").value=g.style;
+  document.getElementById("groupSubmit").textContent="Speichern";
+}
+
+function deleteGroup(idx){
+  if(!confirm("Gruppe wirklich löschen?")) return;
+  CONFIG.GROUPS.splice(idx,1);
+  saveGroups();
+}
+
+async function saveGroups(){
+  try{
+    const res=await fetch(`${SERVER_URL}/save_config`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(CONFIG)
+    });
+    if(res.ok){
+      statusMsg("groupStatus","Gruppen gespeichert","success");
+      document.getElementById("groupForm").reset();
+      document.getElementById("groupSubmit").textContent="Hinzufügen";
+      editIndex=null;
+      renderGroups();
+    }else{
+      statusMsg("groupStatus","Fehler beim Speichern","error");
+    }
+  }catch(e){
+    statusMsg("groupStatus","Fehler beim Speichern","error");
+  }
+}
+
+
+// Init
+loadConfig();
+startPolling();
+</script>
+</body>
+</html>
