@@ -7,6 +7,8 @@ Designed to run on the same Mac as ProPresenter and display active call numbers 
 
 <img width="2984" height="1094" alt="NurseryCall Screenshot" src="https://github.com/user-attachments/assets/19938c51-fa2f-42e5-ba6d-7ffab0501cfa" />
 
+<img width="338" height="177" alt="Bildschirmfoto 2025-12-15 um 17 20 42" src="https://github.com/user-attachments/assets/551f1412-77e6-41b3-872b-a4fa26009714" />
+
 ---
 
 ## ✨ Features
