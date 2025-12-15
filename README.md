@@ -5,6 +5,9 @@ Designed to run on the same Mac as ProPresenter and display active call numbers 
 
 ---
 
+<img width="2730" height="1116" alt="Bildschirmfoto 2025-12-15 um 12 56 22" src="https://github.com/user-attachments/assets/38f4ce2b-d199-4705-b852-57475ecb7aa7" />
+
+
 ## ✨ Features
 
 ### 🔔 Live Call Display
@@ -156,6 +159,11 @@ Example:
 ```
 
 All values can be updated via the Admin Panel.
+
+## ✉️ Setup in Propresenter
+
+Set up a message with your preferred theme.
+Then: Create a token called "Nachricht" and add that to the message details.
 
 ---
 
