@@ -1,70 +1,113 @@
 # NurseryCall
 
-A lightweight, self-hosted call system for church nursery / kids ministry environments.
+A lightweight, self-hosted call system for church nursery / kids ministry environments.  
 Designed to run on the same Mac as ProPresenter and display active call numbers on tablets or phones.
 
 ---
 
-<img width="2730" height="1116" alt="Bildschirmfoto 2025-12-15 um 12 56 22" src="https://github.com/user-attachments/assets/38f4ce2b-d199-4705-b852-57475ecb7aa7" />
+<img width="2984" height="1094" alt="NurseryCall Screenshot" src="https://github.com/user-attachments/assets/19938c51-fa2f-42e5-ba6d-7ffab0501cfa" />
 
+---
 
 ## ✨ Features
 
 ### 🔔 Live Call Display
 
-* Send child call numbers (e.g. **R22**, **K5**) to ProPresenter
+* Send child call numbers (e.g. **R22**, **K5**) directly to ProPresenter
 * Tablets update instantly and show all active calls
 * Calls can be removed with a single tap
 * No need for the ProPresenter operator to click anything
-* Optional sound feedback for success/error
+* Optional sound feedback for success / error
+
+---
 
 ### 👶 Dynamic Group Management
 
 * Create, edit, and delete groups in the Admin Panel
 * Each group has:
-
   * **Name** (e.g. “Little Sharks”)
-  * **Prefix** (e.g. “s”)
+  * **Prefix** (e.g. “R”)
   * **Button Style** (1–10 predefined gradient styles)
 * Index page automatically updates to show all active groups
 * No hard-coded groups in the client
 
+---
+
 ### 🎨 Simple & Beautiful UI
 
-* Gradient background
-* Large responsive buttons
+* Clean gradient background
+* Large, touch-friendly buttons
 * Clear active-call tiles with matching group colors
-* Ideal for iPads or Android tablets
+* Optimized for iPads and Android tablets
+
+---
 
 ### 🖥 Admin Panel
 
 * Tabs: **Live**, **Settings**, **Groups**
-* Manage connected clients
+* Live overview of all active calls
+* Remove individual calls or clear all
 * Test ProPresenter connection
 * Edit ProPresenter host, port and message UUID
-* Live preview of active calls
-* Manage all groups dynamically
+* Fully dynamic group management
+
+---
 
 ### 🔌 ProPresenter Auto-Port Detection
 
 * ProPresenter changes its API port frequently
-* The server automatically detects the *real* PP port
-* Scans **range 1000–50000** only when needed
+* The server automatically detects the *actual* ProPresenter API port
+* Scans the range **1000–50000** only when needed
 * Saves the correct port permanently
-* Never overwrites with a wrong port
-* No downtime when PP restarts
+* Never overwrites a working port
+* No downtime when ProPresenter restarts
+
+---
 
 ### 💾 Persistent Storage
 
-* `config.json`: ProPresenter connection + groups
-* `state.json`: list of currently active calls
-* Both updated automatically
+* `config.json`
+  * ProPresenter connection
+  * Message UUID
+  * Group definitions
+* `state.json`
+  * List of currently active calls
+* Both files are updated automatically
+
+---
 
 ### 🧱 Fully Offline-Capable
 
 * No cloud dependencies
-* Runs entirely on your ProPresenter Mac
-* Tablets connect over local network
+* Runs entirely on the ProPresenter Mac
+* Tablets connect via local LAN / WiFi
+
+---
+
+### 🌎 Multi-Language Support
+
+* Client and Admin UI support multiple languages
+* Translations are stored in external JSON files
+* No rebuild or code changes required to add a new language
+* Language is selected via URL parameter
+* Automatic fallback to default language if a translation is missing
+
+**Example languages:**
+* German (`de`)
+* English (`en`)
+
+Additional languages can be added by placing a new JSON file in `/i18n`.
+
+---
+
+### 🧭 Group Preselection via URL (Perfect for QR Codes)
+
+* Clients can preselect a specific children’s group using a URL parameter
+* Useful for:
+  * Dedicated tablets per group
+  * QR codes at check-in desks
+  * Fixed devices in specific rooms
+* No manual group selection required
 
 ---
 
@@ -72,10 +115,11 @@ Designed to run on the same Mac as ProPresenter and display active call numbers 
 
 * macOS (same machine running ProPresenter)
 * Python 3.9+
-* ProPresenter 7 with an active **Message** configured
-* LAN/WiFi connection for tablets
+* ProPresenter 7 with an active **Message** (With token named "Nachricht") <- this part is important
+* Local network (LAN / WiFi) for tablets
 
 ---
+
 
 ## 🚀 Installation
 
@@ -164,6 +208,51 @@ All values can be updated via the Admin Panel.
 
 Set up a message with your preferred theme.
 Then: Create a token called "Nachricht" and add that to the message details.
+
+---
+## 🌎 Language Selection
+The language is selected using a URL parameter.
+
+Examples:
+
+* http://YOUR-IP-ADRESS:8080/?lang=en
+* http://YOUR-IP-ADRESS:8080/?lang=de
+
+How it works
+
+The client loads translations from:
+/i18n/<lang>.json
+If the file does not exist or is invalid:
+The UI falls back to German
+Static default texts remain visible
+If no language is specified, the browser language is used as fallback
+
+---
+
+## 👶 Group Preselection via URL
+Clients can automatically preselect a group using the group prefix.
+
+Example:
+
+http://YOUR-IP-ADRESS:8080/?group=R
+
+This will:
+* Load the client UI
+* Automatically select the group with prefix R
+* Highlight the corresponding group button
+
+### Combine Language + Group
+* http://YOUR-IP-ADRESS:8080/?lang=en&group=K
+
+This is ideal for:
+* QR codes per group
+* Tablets permanently assigned to one kids group
+* Volunteers with minimal interaction
+
+### 🧾 Example: QR Code Setup
+Tablet for the KingsKids group (prefix K) in English:
+* http://YOUR-IP-ADRESS:8080/?lang=en&group=K
+Scan once → bookmark → ready to use.
 
 ---
 
