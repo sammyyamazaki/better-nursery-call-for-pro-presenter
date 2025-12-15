@@ -1,17 +1,22 @@
 {
-  "PP_HOST": "192.168.178.77",
-  "PP_PORT": 49123,
+  "PP_HOST": "192.168.178.38",
+  "PP_PORT": 33533,
   "MESSAGE_UUID": "2FBC701B-2A0D-4FE8-8FED-2EF6EB5F2149",
   "GROUPS": [
     {
-      "name": "Kids Group 1",
-      "prefix": "A",
+      "name": "Rasselbande",
+      "prefix": "R",
       "style": 1
     },
     {
-      "name": "Kids Group 2",
-      "prefix": "B",
+      "name": "K\u00f6nigskinder",
+      "prefix": "K",
       "style": 2
+    },
+    {
+      "name": "Quallenkids",
+      "prefix": "Q",
+      "style": 3
     }
   ]
 }

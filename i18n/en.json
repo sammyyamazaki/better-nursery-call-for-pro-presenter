@@ -1,0 +1,68 @@
+{
+  "global_app_title_index": "Nursery Call",
+  "global_app_title_admin": "Nursery Call – Admin",
+
+  "global_nav_live": "📡 Live",
+  "global_nav_settings": "⚙️ Settings",
+  "global_nav_groups": "👥 Groups",
+
+  "global_status_pp_ok": "🟢 Connected to ProPresenter",
+  "global_status_pp_fail": "🔴 No connection to ProPresenter",
+
+  "global_status_server_ok": "🟢 Connected to ProPresenter",
+  "global_status_server_fail": "❌ No connection",
+
+  "global_footer_text": "© Sammy Dittmann",
+
+  "index_title_h1": "CALL PARENTS",
+  "index_status_checking": "Checking connection to ProPresenter ...",
+
+  "index_button_call": "📣 Call",
+  "index_active_numbers_title": "Active numbers",
+  "index_no_active_numbers": "No active numbers",
+  "index_input_placeholder_number": "Enter number...",
+
+  "admin_live_title_h2": "Active calls",
+  "admin_live_button_clear_all": "🧹 Clear all",
+  "admin_live_no_active_numbers": "No active numbers",
+  "admin_live_status_ok": "🟢 Connected to ProPresenter",
+  "admin_live_status_fail": "❌ No connection",
+
+  "settings_title_h2": "ProPresenter connection!",
+
+  "settings_label_host": "Host:",
+  "settings_label_port": "Port:",
+  "settings_label_message_template": "Message template:",
+
+  "settings_placeholder_host": "e.g. 192.168.1.10",
+  "settings_placeholder_port": "e.g. 20562",
+
+  "settings_button_save": "💾 Save",
+  "settings_button_test_connection": "🔌 Test connection",
+
+  "settings_status_templates_loaded": "✅ Templates loaded",
+  "settings_status_no_pp_connection": "⚠️ No connection to ProPresenter",
+  "settings_status_config_load_error": "⚠️ Could not load configuration",
+  "settings_status_config_saved": "✅ Saved",
+  "settings_status_config_save_error": "❌ Error while saving",
+  "settings_status_connection_ok": "🟢 Connection successful",
+  "settings_status_connection_fail": "🔴 Connection failed",
+
+  "groups_title_h2": "Manage groups",
+
+  "groups_form_label_name": "Group name",
+  "groups_form_label_prefix": "Prefix",
+  "groups_form_label_style": "Style",
+
+  "groups_button_add": "Add",
+  "groups_button_save": "Save",
+
+  "groups_status_validation_error": "Please fill in name and prefix",
+  "groups_status_saved": "Groups saved",
+  "groups_status_save_error": "Error while saving",
+
+  "groups_existing_title_h3": "Existing groups",
+  "groups_button_edit": "Edit",
+  "groups_button_delete": "Delete",
+  "groups_confirm_delete": "Really delete this group?"
+}

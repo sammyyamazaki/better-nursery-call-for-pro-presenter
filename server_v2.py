@@ -189,23 +189,33 @@ class Nuserver(BaseHTTPRequestHandler):
         parsed = urlparse(self.path)
         path = parsed.path
 
-        # STATIC
-        if path.startswith("/sounds/") or path.startswith("/images/"):
-            local = path.lstrip("/")
-            if os.path.exists(local):
+        # STATIC FILES
+        if path.startswith("/sounds/") or path.startswith("/images/") or path.startswith("/i18n/"):
+            local_path = path.lstrip("/")
+
+            if os.path.exists(local_path) and os.path.isfile(local_path):
                 self.send_response(200)
-                if local.endswith(".mp3"):
+
+                if local_path.endswith(".mp3"):
                     self.send_header("Content-Type", "audio/mpeg")
-                elif local.endswith(".png"):
+                elif local_path.endswith(".png"):
                     self.send_header("Content-Type", "image/png")
+                elif local_path.endswith(".json"):
+                    self.send_header("Content-Type", "application/json; charset=utf-8")
                 else:
                     self.send_header("Content-Type", "application/octet-stream")
+
                 self.end_headers()
-                with open(local, "rb") as f:
-                    self._safe_write(f.read())
+
+                try:
+                    with open(local_path, "rb") as f:
+                        self._safe_write(f.read())
+                except:
+                    pass
             else:
                 self.send_error(404)
             return
+
 
 
         # MAIN

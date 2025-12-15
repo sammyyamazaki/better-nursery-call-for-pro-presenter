@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Elternrufe – Admin</title>
+<title data-i18n="global_app_title_admin">Elternrufe – Admin</title>
 
 <style>
 html,body{
@@ -115,52 +115,53 @@ footer{text-align:center;margin-top:20px;font-size:.8rem;color:rgba(0,0,0,.6)}
 
 <body>
 <div class="wrapper">
-  <h1>📋 Elternrufe – Admin</h1>
+  <h1 data-i18n="global_app_title_admin">📋 Elternrufe – Admin</h1>
   <nav>
-    <button id="tabLive" class="tab-btn active" onclick="showTab('live')">📡 Live</button>
-    <button id="tabSettings" class="tab-btn" onclick="showTab('settings')">⚙️ Einstellungen</button>
-    <button id="tabGroups" class="tab-btn" onclick="showTab('groups')">👥 Gruppen</button>
+    <button id="tabLive" class="tab-btn active" onclick="showTab('live')" data-i18n="global_nav_live">📡 Live</button>
+    <button id="tabSettings" class="tab-btn" onclick="showTab('settings')" data-i18n="global_nav_settings">⚙️ Einstellungen</button>
+    <button id="tabGroups" class="tab-btn" onclick="showTab('groups')" data-i18n="global_nav_groups">👥 Gruppen</button>
   </nav>
 
   <!-- LIVE-TAB -->
   <div id="live" class="container active">
-    <h2>Aktive Calls</h2>
+    <h2 data-i18n="admin_live_title_h2">Aktive Calls</h2>
     <div class="active-list" id="activeNumbers"></div>
-    <button class="main" style="background:#f44" onclick="clearAll()">🧹 Alle löschen</button>
+    <button class="main" style="background:#f44" onclick="clearAll()" data-i18n="admin_live_button_clear_all">🧹 Alle löschen</button>
     <div id="liveStatus" class="status info"></div>
   </div>
 
   <!-- SETTINGS-TAB -->
   <div id="settings" class="container">
-    <h2>ProPresenter Verbindung</h2>
+    <h2 data-i18n="settings_title_h2">ProPresenter Verbindung</h2>
     <form onsubmit="saveConfig(event)">
-      <label for="host">Host:</label>
-      <input id="host" type="text" placeholder="z. B. 192.168.1.10" />
+      <label for="host" data-i18n="settings_label_host">Host:</label>
+      <input id="host" type="text" data-i18n-placeholder="settings_placeholder_host" placeholder="z. B. 192.168.1.10" />
 
-      <label for="port">Port:</label>
-      <input id="port" type="number" placeholder="z. B. 20562" />
+      <label for="port" data-i18n="settings_label_port">Port:</label>
+      <input id="port" type="number" data-i18n-placeholder="settings_placeholder_port" placeholder="z. B. 20562" />
 
-      <label for="uuid">Message-Vorlage:</label>
+      <label for="uuid" data-i18n="settings_label_message_template">Message-Vorlage:</label>
       <select id="uuid"></select>
 
-      <button class="main" type="submit">💾 Speichern</button>
-      <button class="main" type="button" style="background:#ffa500" onclick="testConnection()">🔌 Verbindung testen</button>
+      <button class="main" type="submit" data-i18n="settings_button_save">💾 Speichern</button>
+      <button class="main" type="button" style="background:#ffa500" onclick="testConnection()" data-i18n="settings_button_test_connection">🔌 Verbindung testen</button>
       <div id="configMsg" class="status info"></div>
     </form>
   </div>
 
   <!-- GROUPS-TAB -->
   <div id="groups" class="container">
-    <h2>Gruppen verwalten</h2>
+    <h2 data-i18n="groups_title_h2">Gruppen verwalten</h2>
 
     <form id="groupForm" onsubmit="handleGroupSubmit(event)">
-      <label>Gruppenname</label>
+      <label data-i18n="groups_form_label_name">Gruppenname</label>
       <input id="g_name" required />
 
-      <label>Kürzel</label>
-      <input id="g_prefix" maxlength="3" required />
+      <label data-i18n="groups_form_label_prefix">Kürzel</label>
+      <!-- Prefix jetzt explizit auf 1 Zeichen begrenzt -->
+      <input id="g_prefix" maxlength="1" required />
 
-      <label>Style</label>
+      <label data-i18n="groups_form_label_style">Style</label>
       <select id="g_style">
         <option value="1">Style 1</option>
         <option value="2">Style 2</option>
@@ -174,19 +175,100 @@ footer{text-align:center;margin-top:20px;font-size:.8rem;color:rgba(0,0,0,.6)}
         <option value="10">Style 10</option>
       </select>
 
-      <button id="groupSubmit" class="main" type="submit">Hinzufügen</button>
+      <button id="groupSubmit" class="main" type="submit" data-i18n="groups_button_add">Hinzufügen</button>
     </form>
 
     <div id="groupStatus" class="status info" style="display:none;"></div>
 
-    <h3 style="margin-top:20px;">Bestehende Gruppen</h3>
+    <h3 style="margin-top:20px;" data-i18n="groups_existing_title_h3">Bestehende Gruppen</h3>
     <div id="groupList"></div>
   </div>
 
-  <footer>© <span id="year"></span> EFG Essen Altendorf</footer>
+  <footer><span data-i18n="global_footer_text">© EFG Essen Altendorf</span> – <span id="year"></span></footer>
 </div>
 
 <script>
+// ===============================
+//   I18N – externe JSON-Dateien
+// ===============================
+
+let I18N = {};
+let CURRENT_LANG = "de";
+
+function getLang() {
+  const params = new URLSearchParams(window.location.search);
+  const urlLang = params.get("lang");
+  if (urlLang) return urlLang.toLowerCase();
+
+  const browser = (navigator.language || navigator.userLanguage || "de").slice(0,2).toLowerCase();
+  return browser;
+}
+
+function t(key, fallback) {
+  if (I18N && Object.prototype.hasOwnProperty.call(I18N, key)) {
+    return I18N[key];
+  }
+  return fallback !== undefined ? fallback : key;
+}
+
+function applyTranslations() {
+  // normale Texte (inkl. <title>)
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    const key = el.getAttribute("data-i18n");
+    const txt = t(key, el.textContent);
+    if (!txt) return;
+
+    if (el.tagName === "TITLE") {
+      document.title = txt;
+    } else {
+      el.textContent = txt;
+    }
+  });
+
+  // Placeholder-Texte
+  document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
+    const key = el.getAttribute("data-i18n-placeholder");
+    const placeholder = t(key, el.getAttribute("placeholder"));
+    if (placeholder) {
+      el.setAttribute("placeholder", placeholder);
+    }
+  });
+}
+
+async function initI18n() {
+  const lang = getLang();
+  CURRENT_LANG = lang;
+
+  async function loadLang(langCode) {
+    const res = await fetch(`/i18n/${langCode}.json`, { cache: "no-store" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    return await res.json();
+  }
+
+  try {
+    I18N = await loadLang(lang);
+  } catch (e) {
+    console.warn("Fehler beim Laden der Sprachdatei", lang, e);
+    if (lang !== "de") {
+      try {
+        I18N = await loadLang("de");
+        CURRENT_LANG = "de";
+      } catch (e2) {
+        console.warn("Fallback auf Deutsch fehlgeschlagen, verwende statische Texte.", e2);
+        I18N = {};
+      }
+    } else {
+      I18N = {};
+    }
+  }
+
+  applyTranslations();
+}
+
+// ===============================
+//   Bisherige Logik (leicht i18n-isiert)
+// ===============================
+
 const SERVER_URL = window.location.origin;
 document.getElementById("year").textContent = new Date().getFullYear();
 let pollInterval=null;
@@ -214,16 +296,21 @@ async function updateList(){
     if(!res.ok) throw new Error(res.status);
     const data=await res.json();
     renderList(data.active||[]);
-    statusMsg("liveStatus","🟢 ProPresenter verbunden","success");
+    statusMsg("liveStatus", t("admin_live_status_ok","🟢 ProPresenter verbunden"), "success");
   }catch(e){
-    statusMsg("liveStatus","❌ Keine Verbindung","error");
+    statusMsg("liveStatus", t("admin_live_status_fail","❌ Keine Verbindung"), "error");
   }
 }
 
 function renderList(list){
   const c=document.getElementById("activeNumbers");
   c.innerHTML="";
-  if(!list.length){c.innerHTML="<p>Keine aktiven Nummern</p>";return;}
+  if(!list.length){
+    const p = document.createElement("p");
+    p.textContent = t("admin_live_no_active_numbers","Keine aktiven Nummern");
+    c.appendChild(p);
+    return;
+  }
   list.forEach(n=>{
     // Simple: K → group-K, sonst group-R (wie bisher)
     const g=n.startsWith("K")?"K":"R";
@@ -243,7 +330,7 @@ async function removeNumber(num){
 }
 
 async function clearAll(){
-  if(!confirm("Wirklich alle löschen?")) return;
+  if(!confirm(t("admin_live_button_clear_all","🧹 Alle löschen")+"?")) return;
   await fetch(`${SERVER_URL}/clear`, { method:"POST" });
   updateList();
 }
@@ -268,7 +355,7 @@ async function loadConfig(){
     // Gruppenliste initial zeichnen
     renderGroups();
   }catch(e){
-    statusMsg("configMsg","⚠️ Konnte Config nicht laden","error");
+    statusMsg("configMsg", t("settings_status_config_load_error","⚠️ Konnte Config nicht laden"), "error");
   }
 }
 
@@ -286,9 +373,9 @@ async function loadMessages(host,port,activeUUID){
       if(m.id.uuid===activeUUID) opt.selected=true;
       select.appendChild(opt);
     });
-    statusMsg("configMsg","✅ Vorlagen geladen","success");
+    statusMsg("configMsg", t("settings_status_templates_loaded","✅ Vorlagen geladen"), "success");
   }catch(e){
-    statusMsg("configMsg","⚠️ Keine Verbindung zu PP","error");
+    statusMsg("configMsg", t("settings_status_no_pp_connection","⚠️ Keine Verbindung zu PP"), "error");
   }
 }
 
@@ -304,9 +391,13 @@ async function saveConfig(e){
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify(CONFIG)
     });
-    if(res.ok)statusMsg("configMsg","✅ Gespeichert","success");
+    if(res.ok){
+      statusMsg("configMsg", t("settings_status_config_saved","✅ Gespeichert"), "success");
+    } else {
+      statusMsg("configMsg", t("settings_status_config_save_error","❌ Fehler beim Speichern"), "error");
+    }
   }catch(e){
-    statusMsg("configMsg","❌ Fehler beim Speichern","error");
+    statusMsg("configMsg", t("settings_status_config_save_error","❌ Fehler beim Speichern"), "error");
   }
 }
 
@@ -316,10 +407,12 @@ async function testConnection(){
   try{
     const res=await fetch(`http://${host}:${port}/v1/messages`);
     if(res.ok){
-      statusMsg("configMsg","🟢 Verbindung erfolgreich","success");
+      statusMsg("configMsg", t("settings_status_connection_ok","🟢 Verbindung erfolgreich"), "success");
       await loadMessages(host,port,document.getElementById("uuid").value);
     }else throw new Error();
-  }catch(e){statusMsg("configMsg","🔴 Verbindung fehlgeschlagen","error");}
+  }catch(e){
+    statusMsg("configMsg", t("settings_status_connection_fail","🔴 Verbindung fehlgeschlagen"), "error");
+  }
 }
 
 
@@ -337,22 +430,32 @@ function renderGroups(){
         ${g.name} (Style ${g.style})
       </div>
       <div class="group-actions">
-        <button type="button" onclick="editGroup(${idx})">Bearbeiten</button>
-        <button type="button" onclick="deleteGroup(${idx})">Löschen</button>
+        <button type="button" data-idx="${idx}" class="btn-edit">${t("groups_button_edit","Bearbeiten")}</button>
+        <button type="button" data-idx="${idx}" class="btn-delete">${t("groups_button_delete","Löschen")}</button>
       </div>
     `;
     list.appendChild(row);
+  });
+
+  // Events für Edit/Delete (delegiert, damit i18n-Text passt)
+  list.querySelectorAll(".btn-edit").forEach(btn => {
+    btn.onclick = () => editGroup(parseInt(btn.getAttribute("data-idx"), 10));
+  });
+  list.querySelectorAll(".btn-delete").forEach(btn => {
+    btn.onclick = () => deleteGroup(parseInt(btn.getAttribute("data-idx"), 10));
   });
 }
 
 function handleGroupSubmit(e){
   e.preventDefault();
   const name=document.getElementById("g_name").value.trim();
-  const prefix=document.getElementById("g_prefix").value.trim().toUpperCase();
+  let prefixRaw=document.getElementById("g_prefix").value.trim().toUpperCase();
+  // Prefix sicher auf genau 1 Zeichen begrenzen
+  let prefix = prefixRaw ? prefixRaw.charAt(0) : "";
   const style=parseInt(document.getElementById("g_style").value);
 
   if(!name || !prefix){
-    statusMsg("groupStatus","Bitte Name und Kürzel ausfüllen","error");
+    statusMsg("groupStatus", t("groups_status_validation_error","Bitte Name und Kürzel ausfüllen"), "error");
     return false;
   }
 
@@ -374,11 +477,13 @@ function editGroup(idx){
   document.getElementById("g_name").value=g.name;
   document.getElementById("g_prefix").value=g.prefix;
   document.getElementById("g_style").value=g.style;
-  document.getElementById("groupSubmit").textContent="Speichern";
+  document.getElementById("groupSubmit").textContent=t("groups_button_save","Speichern");
 }
 
 function deleteGroup(idx){
-  if(!confirm("Gruppe wirklich löschen?")) return;
+  const g = CONFIG.GROUPS[idx];
+  const msg = t("groups_confirm_delete","Gruppe wirklich löschen?");
+  if(!confirm(msg)) return;
   CONFIG.GROUPS.splice(idx,1);
   saveGroups();
 }
@@ -391,23 +496,26 @@ async function saveGroups(){
       body:JSON.stringify(CONFIG)
     });
     if(res.ok){
-      statusMsg("groupStatus","Gruppen gespeichert","success");
+      statusMsg("groupStatus", t("groups_status_saved","Gruppen gespeichert"), "success");
       document.getElementById("groupForm").reset();
-      document.getElementById("groupSubmit").textContent="Hinzufügen";
+      document.getElementById("groupSubmit").textContent=t("groups_button_add","Hinzufügen");
       editIndex=null;
       renderGroups();
     }else{
-      statusMsg("groupStatus","Fehler beim Speichern","error");
+      statusMsg("groupStatus", t("groups_status_save_error","Fehler beim Speichern"), "error");
     }
   }catch(e){
-    statusMsg("groupStatus","Fehler beim Speichern","error");
+    statusMsg("groupStatus", t("groups_status_save_error","Fehler beim Speichern"), "error");
   }
 }
 
 
 // Init
-loadConfig();
-startPolling();
+(async function(){
+  await initI18n();
+  await loadConfig();
+  startPolling();
+})();
 </script>
 </body>
 </html>

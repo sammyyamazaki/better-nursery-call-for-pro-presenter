@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Elternruf</title>
+<title data-i18n="global_app_title_index">Elternruf</title>
 
 <style>
 
@@ -158,18 +158,24 @@
 
 <div class="main">
     <div class="left">
-        <h1>ELTERN RUFEN</h1>
+        <h1 data-i18n="index_title_h1">ELTERN RUFEN</h1>
         <div id="connectionStatus"></div>
+        <div id="langDebug" style="text-align:center;font-size:12px;opacity:.7;margin-bottom:10px;"></div>
+
 
         <div class="group-buttons" id="groupButtons"></div>
 
-        <input id="numberInput" type="number" placeholder="Nummer eingeben..." />
+        <input
+            id="numberInput"
+            type="number"
+            data-i18n-placeholder="index_input_placeholder_number"
+            placeholder="Nummer eingeben..." />
 
-        <button id="callBtn">📣 Rufen</button>
+        <button id="callBtn" data-i18n="index_button_call">📣 Rufen</button>
     </div>
 
     <div class="right">
-        <h2>Aktive Nummern</h2>
+        <h2 data-i18n="index_active_numbers_title">Aktive Nummer</h2>
         <div id="activeList"></div>
     </div>
 </div>
@@ -178,6 +184,101 @@
 <audio id="sound-error" src="sounds/error.mp3"></audio>
 
 <script>
+// ===============================
+//   I18N – externe JSON-Dateien
+// ===============================
+
+let I18N = {};
+let CURRENT_LANG = "de";
+
+function getLang() {
+    const params = new URLSearchParams(window.location.search);
+    const urlLang = params.get("lang");
+    if (urlLang) return urlLang.toLowerCase();
+
+    const browser = (navigator.language || navigator.userLanguage || "de").slice(0, 2).toLowerCase();
+    return browser;
+}
+
+function t(key, fallback) {
+    if (I18N && Object.prototype.hasOwnProperty.call(I18N, key)) {
+        return I18N[key];
+    }
+    return fallback !== undefined ? fallback : key;
+}
+
+function applyTranslations() {
+    // normale Texte
+    document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.getAttribute("data-i18n");
+        const txt = t(key, el.textContent);
+        if (!txt) return;
+
+        if (el.tagName === "TITLE") {
+            document.title = txt;
+        } else {
+            el.textContent = txt;
+        }
+    });
+
+    // Placeholder-Texte
+    document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
+        const key = el.getAttribute("data-i18n-placeholder");
+        const placeholder = t(key, el.getAttribute("placeholder"));
+        if (placeholder) {
+            el.setAttribute("placeholder", placeholder);
+        }
+    });
+}
+
+async function initI18n() {
+    const lang = getLang();
+    CURRENT_LANG = lang;
+
+    async function loadLang(langCode) {
+        const res = await fetch(`/i18n/${langCode}.json`, { cache: "no-store" });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        return await res.json();
+    }
+
+    try {
+        I18N = await loadLang(lang);
+    } catch (e) {
+        console.warn("Fehler beim Laden der Sprachdatei", lang, e);
+        if (lang !== "de") {
+            try {
+                I18N = await loadLang("de");
+                CURRENT_LANG = "de";
+            } catch (e2) {
+                console.warn("Fallback auf Deutsch fehlgeschlagen, verwende statische Texte.", e2);
+                I18N = {};
+            }
+        } else {
+            I18N = {};
+        }
+    }
+
+    applyTranslations();
+   // document.getElementById("langDebug").textContent = "LANG=" + CURRENT_LANG;
+
+    //document.getElementById("connectionStatus").innerHTML =
+    //    '<div class="status-ok">LANG=' + CURRENT_LANG + '</div>';
+
+    
+
+    // initialer Text für Verbindungsstatus (wird von loadState überschrieben)
+    const cs = document.getElementById("connectionStatus");
+    if (cs && !cs.innerHTML) {
+        cs.innerHTML = '<div class="status-fail">' +
+            t("index_status_checking", "Verbindung zu ProPresenter wird geprüft ...") +
+            "</div>";
+    }
+}
+
+// ===============================
+//   Bisherige Logik
+// ===============================
+
 let groups = [];
 let selectedGroup = null;
 let connectionOK = false;
@@ -196,7 +297,16 @@ function getURLGroupParam() {
 async function loadGroups() {
     const r = await fetch("/groups");
     const data = await r.json();
-    groups = data.groups || [];
+
+    // Prefix IMMER auf genau 1 Zeichen kürzen + in Großbuchstaben
+    groups = (data.groups || []).map(g => {
+        const raw = (g.prefix || "").toString().trim();
+        const oneChar = raw ? raw.charAt(0).toUpperCase() : "";
+        return {
+            ...g,
+            prefix: oneChar
+        };
+    });
 
     renderGroupButtons();
 }
@@ -208,13 +318,23 @@ async function loadState() {
     const r = await fetch("/state");
     const data = await r.json();
 
+    // Backend liefert weiterhin "ok"/"fail"
     connectionOK = data.connection === "ok";
-    document.getElementById("connectionStatus").innerHTML =
-        connectionOK
-            ? '<div class="status-ok">🟢 ProPresenter verbunden</div>'
-            : '<div class="status-fail">🔴 Keine Verbindung</div>';
+    const statusEl = document.getElementById("connectionStatus");
 
-    renderActiveList(data.active);
+    if (connectionOK) {
+        statusEl.innerHTML =
+            '<div class="status-ok">' +
+            t("global_status_pp_ok", "🟢 ProPresenter verbunden") +
+            "</div>";
+    } else {
+        statusEl.innerHTML =
+            '<div class="status-fail">' +
+            t("global_status_pp_fail", "🔴 Keine Verbindung") +
+            "</div>";
+    }
+
+    renderActiveList(data.active || []);
     updateInputs();
 }
 
@@ -290,11 +410,18 @@ function renderActiveList(list) {
         div.onclick = async () => {
             const r = await fetch("/remove?num=" + encodeURIComponent(item), { method: "POST" });
             const data = await r.json();
-            renderActiveList(data.active);
+            renderActiveList(data.active || []);
         };
 
         box.appendChild(div);
     });
+
+    // Wenn keine aktiven Nummern → Text anzeigen
+    if (!list || list.length === 0) {
+        const empty = document.createElement("div");
+        empty.textContent = t("index_no_active_numbers", "Keine aktiven Nummern");
+        box.appendChild(empty);
+    }
 }
 
 /* ---------------------------
@@ -316,7 +443,7 @@ document.getElementById("callBtn").onclick = async () => {
     const data = await r.json();
 
     document.getElementById("sound-success").play();
-    renderActiveList(data.active);
+    renderActiveList(data.active || []);
 
     input.value = "";
 };
@@ -328,9 +455,12 @@ function updateInputs() {
 }
 
 /* Init */
-loadGroups();
-loadState();
-setInterval(loadState, 1500);
+(async function () {
+    await initI18n();   // Sprache laden & anwenden (DE/EN)
+    loadGroups();
+    loadState();
+    setInterval(loadState, 1500);
+})();
 </script>
 
 </body>

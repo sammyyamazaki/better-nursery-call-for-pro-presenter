@@ -1,0 +1,68 @@
+{
+  "global_app_title_index": "Elternruf",
+  "global_app_title_admin": "Elternrufe – Admin",
+
+  "global_nav_live": "📡 Live",
+  "global_nav_settings": "⚙️ Einstellungen",
+  "global_nav_groups": "👥 Gruppen",
+
+  "global_status_pp_ok": "🟢 ProPresenter verbunden",
+  "global_status_pp_fail": "🔴 Keine Verbindung",
+
+  "global_status_server_ok": "🟢 ProPresenter verbunden",
+  "global_status_server_fail": "❌ Keine Verbindung",
+
+  "global_footer_text": "© Sammy Dittmann",
+
+  "index_title_h1": "ELTERN RUFEN",
+  "index_status_checking": "Verbindung zu ProPresenter wird geprüft ...",
+
+  "index_button_call": "📣 Rufen",
+  "index_active_numbers_title": "Aktive Nummern",
+  "index_no_active_numbers": "Keine aktiven Nummern",
+  "index_input_placeholder_number": "Nummer eingeben...",
+
+  "admin_live_title_h2": "Aktive Calls",
+  "admin_live_button_clear_all": "🧹 Alle löschen",
+  "admin_live_no_active_numbers": "Keine aktiven Nummern",
+  "admin_live_status_ok": "🟢 ProPresenter verbunden",
+  "admin_live_status_fail": "❌ Keine Verbindung",
+
+  "settings_title_h2": "ProPresenter Verbindung",
+
+  "settings_label_host": "Host:",
+  "settings_label_port": "Port:",
+  "settings_label_message_template": "Message-Vorlage:",
+
+  "settings_placeholder_host": "z. B. 192.168.1.10",
+  "settings_placeholder_port": "z. B. 20562",
+
+  "settings_button_save": "💾 Speichern",
+  "settings_button_test_connection": "🔌 Verbindung testen",
+
+  "settings_status_templates_loaded": "✅ Vorlagen geladen",
+  "settings_status_no_pp_connection": "⚠️ Keine Verbindung zu PP",
+  "settings_status_config_load_error": "⚠️ Konnte Config nicht laden",
+  "settings_status_config_saved": "✅ Gespeichert",
+  "settings_status_config_save_error": "❌ Fehler beim Speichern",
+  "settings_status_connection_ok": "🟢 Verbindung erfolgreich",
+  "settings_status_connection_fail": "🔴 Verbindung fehlgeschlagen",
+
+  "groups_title_h2": "Gruppen verwalten",
+
+  "groups_form_label_name": "Gruppenname",
+  "groups_form_label_prefix": "Kürzel",
+  "groups_form_label_style": "Style",
+
+  "groups_button_add": "Hinzufügen",
+  "groups_button_save": "Speichern",
+
+  "groups_status_validation_error": "Bitte Name und Kürzel ausfüllen",
+  "groups_status_saved": "Gruppen gespeichert",
+  "groups_status_save_error": "Fehler beim Speichern",
+
+  "groups_existing_title_h3": "Bestehende Gruppen",
+  "groups_button_edit": "Bearbeiten",
+  "groups_button_delete": "Löschen",
+  "groups_confirm_delete": "Gruppe wirklich löschen?"
+}
